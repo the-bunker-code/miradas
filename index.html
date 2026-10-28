@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Miradas: un juego tranquilo para que niñas y niños de 3 a 5 años busquen con la mirada la cara de un adulto. La pantalla es del adulto; la niña casi solo escucha."
+    />
+    <!--
+      Política de seguridad (CSP): solo se cargan archivos de este mismo sitio y ningún
+      script o estilo escrito dentro del HTML. Va aquí además de en _headers para que
+      también funcione en GitHub Pages, que no permite cabeceras propias.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="theme-color" content="#ffe7b8" />
+    <title>Miradas</title>
+
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icons/icon-180.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+
+    <!-- Letra redondeada, servida desde este sitio: no se envía nada a terceros. -->
+    <link rel="preload" href="fonts/fredoka-latin-v17.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <!--
+      modulepreload: el navegador descarga todos los módulos a la vez, en vez de
+      descubrirlos de a uno. Si agregas un módulo a js/, agrégalo también aquí y en sw.js.
+    -->
+    <link rel="modulepreload" href="js/main.js" />
+    <link rel="modulepreload" href="js/game.js" />
+    <link rel="modulepreload" href="js/render.js" />
+    <link rel="modulepreload" href="js/rules.js" />
+    <link rel="modulepreload" href="js/config.js" />
+    <link rel="modulepreload" href="js/copy.js" />
+    <link rel="modulepreload" href="js/audio.js" />
+    <link rel="modulepreload" href="js/storage.js" />
+    <link rel="modulepreload" href="js/icons.js" />
+    <link rel="modulepreload" href="js/mascot.js" />
+    <link rel="modulepreload" href="js/dom.js" />
+    <script type="module" src="js/main.js"></script>
+  </head>
+  <body>
+    <noscript><p class="boot-warning">Este juego necesita JavaScript.</p></noscript>
+    <p class="boot-warning" id="boot-warning">Cargando… si ves esto, abre con un servidor local.</p>
+
+    <svg class="hills" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true">
+      <path class="hills__back" d="M0 55 C70 15 150 25 215 50 S335 85 400 45 V120 H0Z" />
+      <path d="M0 85 C70 58 150 68 210 88 S330 110 400 78 V120 H0Z" />
+    </svg>
+
+    <main class="app">
+      <!-- 1. Inicio -->
+      <section class="screen screen--home" id="screen-home" tabindex="-1" hidden>
+        <h1 class="logo">Miradas</h1>
+
+        <div class="greeting">
+          <div class="greeting__mascot mascot is-floating" id="home-mascot"></div>
+          <p class="bubble greeting__bubble">¡Hola! ¿Empezamos?</p>
+        </div>
+
+        <div class="group" role="group" aria-labelledby="level-label">
+          <p class="group__label" id="level-label">Nivel</p>
+          <div class="picker picker--levels" id="level-picker"></div>
+          <p class="group__hint" id="level-hint"></p>
+        </div>
+
+        <div class="panel">
+          <div class="group" role="group" aria-labelledby="adults-label">
+            <p class="group__label" id="adults-label">Adultos que juegan</p>
+            <div class="picker picker--counts" id="adult-picker"></div>
+            <div class="names">
+              <label class="name-row">
+                <span class="name-row__dot adult-1" aria-hidden="true"></span>
+                <span class="sr-only">Nombre del adulto 1</span>
+                <input
+                  class="name-row__input"
+                  id="name-1"
+                  data-adult="0"
+                  type="text"
+                  maxlength="20"
+                  autocomplete="off"
+                />
+              </label>
+              <label class="name-row" hidden>
+                <span class="name-row__dot adult-2" aria-hidden="true"></span>
+                <span class="sr-only">Nombre del adulto 2</span>
+                <input
+                  class="name-row__input"
+                  id="name-2"
+                  data-adult="1"
+                  type="text"
+                  maxlength="20"
+                  autocomplete="off"
+                />
+              </label>
+              <label class="name-row" hidden>
+                <span class="name-row__dot adult-3" aria-hidden="true"></span>
+                <span class="sr-only">Nombre del adulto 3</span>
+                <input
+                  class="name-row__input"
+                  id="name-3"
+                  data-adult="2"
+                  type="text"
+                  maxlength="20"
+                  autocomplete="off"
+                />
+              </label>
+            </div>
+          </div>
+
+          <div class="toggles">
+            <label class="toggle"
+              ><input type="checkbox" id="setting-voice" /><span class="toggle__pill">Voz</span></label
+            >
+            <label class="toggle"
+              ><input type="checkbox" id="setting-sound" /><span class="toggle__pill">Sonidos</span></label
+            >
+          </div>
+        </div>
+
+        <button type="button" class="button button--primary button--big" data-action="start">Empezar</button>
+        <button type="button" class="link" data-action="show-progress">Ver progreso</button>
+      </section>
+
+      <!-- 2. Ronda (la ve y la toca el adulto) -->
+      <section class="screen screen--round" id="screen-round" tabindex="-1" hidden>
+        <h2 class="sr-only">Ronda</h2>
+        <header class="topbar">
+          <p class="topbar__pill topbar__stars">
+            <span data-icon="star" data-size="22" data-stroke="2"></span>
+            <span class="sr-only">Estrellas del equipo:</span>
+            <span id="stars">0</span>
+          </p>
+          <p class="topbar__pill topbar__clock">
+            <span data-icon="clock" data-size="18" data-stroke="2"></span>
+            <span id="clock" role="timer" aria-label="Tiempo restante de la sesión">5:00</span>
+          </p>
+          <button type="button" class="button button--ghost" data-action="finish">Terminar</button>
+        </header>
+        <div class="round" id="round-phase">
+          <div class="stage" id="stage"></div>
+          <div class="action" id="action"></div>
+        </div>
+        <p class="sr-only" id="status" role="status"></p>
+      </section>
+
+      <!-- 3. Fin de sesión -->
+      <section class="screen screen--end" id="screen-end" tabindex="-1" hidden>
+        <div class="end__mascot mascot" id="end-mascot"></div>
+        <h2 class="logo">¡Terminamos!</h2>
+        <div id="end-body"></div>
+        <button type="button" class="button button--primary button--big" data-action="go-home">Salir</button>
+      </section>
+
+      <!-- 4. Progreso -->
+      <section class="screen screen--progress" id="screen-progress" tabindex="-1" hidden>
+        <header class="topbar">
+          <h2 class="topbar__title">Progreso</h2>
+          <button type="button" class="button button--ghost" data-action="go-home">Volver</button>
+        </header>
+        <div id="progress-body"></div>
+        <button type="button" class="button button--ghost button--danger" id="clear-data" data-action="ask-clear">
+          Borrar datos
+        </button>
+      </section>
+    </main>
+
+    <dialog class="dialog" id="confirm-clear" aria-labelledby="confirm-title">
+      <form method="dialog">
+        <h2 class="dialog__title" id="confirm-title">¿Borrar todo el progreso?</h2>
+        <p>Se borran las sesiones guardadas en este dispositivo. Los ajustes se quedan.</p>
+        <div class="dialog__buttons">
+          <button type="submit" class="button" value="cancel">Cancelar</button>
+          <button type="submit" class="button button--primary" value="clear">Borrar</button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

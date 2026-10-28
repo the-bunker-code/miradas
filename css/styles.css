@@ -1,0 +1,987 @@
+/* ==========================================================================
+   MIRADAS — styles.css
+   Secciones: 1 Variables · 2 Base · 3 Componentes · 4 Inicio · 5 Ronda · 6 Final
+   · 7 Progreso · 8 Diálogo · 9 Responsive · 10 Movimiento reducido
+   Regla: ningún color fuera de :root; sin style="" ni !important (salvo [hidden]).
+   Misma línea gráfica que Memo Colores y Matemáticas con Dados. En la ronda no hay mascota
+   ni movimiento: la pantalla es del adulto y no debe atraer a la niña.
+   ========================================================================== */
+
+/* 1. Variables ------------------------------------------------------------- */
+:root {
+  /* 1. Theme of the current mode/operation. JavaScript overrides these. ---- */
+  --theme-main: #ffa23a; /* fills; text on it is always --on-theme */
+  --theme-dark: #af630e; /* depth shadow AND text on white (>= 4.5:1); per-mode values keep that */
+  --theme-strong: #c2410c; /* fill under WHITE text (5.2:1); optional per mode */
+  --theme-strong-dark: #9a3412; /* depth shadow under --theme-strong */
+  --theme-light: #fff0d6; /* soft tint for chips and selected backgrounds */
+  --sky-top: #ffe7b8; /* page background gradient, top */
+  --sky-bottom: #fff8ea; /* page background gradient, bottom */
+  --hills: #b9e48f; /* decorative landscape strip */
+
+  /* 2. Neutrals ------------------------------------------------------------ */
+  --ink: #2b2d42; /* body text; >= 11:1 on every sky */
+  --on-theme: #1a1b29; /* text on --theme-main; >= 4.5:1 on all mode themes */
+  --muted: #5c5f6e; /* secondary text; >= 4.5:1 on white and on every sky */
+  --line: #ece7dc; /* hairlines and dividers */
+  --white: #ffffff;
+  --edge: #d9d2c2; /* depth shadow under white buttons and cards */
+  --edge-soft: #e6dcc6; /* lighter depth shadow (pills, small chips) */
+
+  /* 3. Accents and feedback ------------------------------------------------ */
+  --gold: #ffc21a; /* reward, stars, streaks */
+  --gold-dark: #e0a400; /* depth shadow under --gold (decision: Brandbook §5) */
+  --correct-bg: #e4f8dc;
+  --correct-shadow: #9fd88a;
+  --blue: #2f6fd8; /* primary action; 4.8:1 with white text (AA) */
+  --blue-dark: #1f55b0; /* depth shadow under --blue; 7:1 on white */
+  --orange: #ffa23a; /* alias of the base brand orange */
+  --orange-dark: #e07f12;
+  --focus: #1e3a8a; /* focus ring; >= 7:1 on every sky */
+
+  /* 4. Wood (physical pieces: caps, tiles, boards) ------------------------- */
+  --wood-light: #f3c98d;
+  --wood-dark: #e9b673;
+  --wood-edge: #c98b45;
+  --wood-shadow: #a96f30;
+
+  /* 5. Shape and depth ----------------------------------------------------- */
+  --radius-small: 14px; /* chips, inputs */
+  --radius: 20px; /* buttons, tiles */
+  --radius-large: 28px; /* cards, panels */
+  --press-depth: 6px; /* solid bottom shadow of a "thick button" */
+  --press-travel: 3px; /* how far it sinks on :active */
+  --card-shadow: 0 6px 0 rgb(0 0 0 / 5%), 0 10px 24px rgb(0 0 0 / 6%);
+  --touch-min: 44px; /* minimum touch target */
+  --cap-size: 52px; /* the round "tapita" piece; games scale it by breakpoint */
+  --cap-size-small: 36px;
+
+  /* 6. Typography ---------------------------------------------------------- */
+  --font-kid: 'Fredoka', ui-rounded, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-adult: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+
+  /* 7. Miradas: temas por nivel (los mismos tres de Memo Colores) y colores de adulto */
+  --logo: #d9480f; /* título; mismo valor que Memo Colores */
+  --level-1-strong: #c2410c; /* coral; texto blanco 5.2:1 */
+  --level-1-dark: #9a3412;
+  --level-3-strong: #be185d; /* rosa; texto blanco 5.9:1 */
+  --level-3-dark: #9d174d;
+  --green: #2e7d32; /* tercer adulto; texto blanco 5.1:1 */
+  --green-dark: #1e5a22;
+  --danger: #9b1c1c; /* solo el texto de "Borrar datos" (7:1); nunca ante la niña */
+}
+
+@font-face {
+  font-family: 'Fredoka';
+  src: url('../fonts/fredoka-latin-v17.woff2') format('woff2');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 2. Base ------------------------------------------------------------------ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--font-kid);
+  font-size: 14px;
+  color: var(--ink);
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 70%) fixed;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+[hidden] {
+  display: none !important; /* única excepción permitida: un atributo hidden siempre gana */
+}
+
+:focus-visible {
+  outline: 4px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.screen:focus {
+  outline: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.boot-warning {
+  margin: 0;
+  padding: 12px 16px;
+  background: var(--white);
+  color: var(--ink);
+  text-align: center;
+}
+
+.hills {
+  position: fixed;
+  inset: auto 0 0 0;
+  width: 100%;
+  height: 28vh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hills path {
+  fill: var(--hills);
+}
+
+.hills__back {
+  opacity: 0.55;
+}
+
+.app {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 560px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.icon {
+  display: block;
+  flex: none;
+}
+
+.mascot svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* 3. Componentes ----------------------------------------------------------- */
+/* Botón grueso: sombra sólida abajo que se hunde al presionar. */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 64px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--white);
+  color: var(--ink);
+  font: 600 1.3rem/1.2 var(--font-kid);
+  box-shadow: 0 var(--press-depth) 0 var(--edge);
+}
+
+.button:active {
+  transform: translateY(var(--press-travel));
+  box-shadow: 0 calc(var(--press-depth) - var(--press-travel)) 0 var(--edge);
+}
+
+.button--primary {
+  background: var(--blue);
+  color: var(--white);
+  box-shadow: 0 var(--press-depth) 0 var(--blue-dark);
+}
+
+.button--primary:active {
+  box-shadow: 0 calc(var(--press-depth) - var(--press-travel)) 0 var(--blue-dark);
+}
+
+/* Color del nivel en curso (lo fija la pantalla de la ronda con data-level). */
+.button--theme {
+  background: var(--theme-strong);
+  color: var(--white);
+  box-shadow: 0 var(--press-depth) 0 var(--theme-strong-dark);
+}
+
+.button--theme:active {
+  box-shadow: 0 calc(var(--press-depth) - var(--press-travel)) 0 var(--theme-strong-dark);
+}
+
+.button--big {
+  min-height: 76px;
+  font-size: 1.7rem;
+}
+
+.button--ghost {
+  min-height: var(--touch-min);
+  padding: 8px 14px;
+  background: transparent;
+  box-shadow: none;
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+.button--ghost:active {
+  transform: none;
+  box-shadow: none;
+}
+
+.button--danger {
+  align-self: center;
+  color: var(--danger);
+}
+
+/* Cada adulto: un color fijo en toda la app. Los componentes leen --adult. */
+.adult-1 {
+  --adult: var(--blue);
+  --adult-dark: var(--blue-dark);
+}
+
+.adult-2 {
+  --adult: var(--level-1-strong);
+  --adult-dark: var(--level-1-dark);
+}
+
+.adult-3 {
+  --adult: var(--green);
+  --adult-dark: var(--green-dark);
+}
+
+/* Botón-tarjeta (como las tarjetas de modo de los otros juegos): texto abajo, ícono en disco blanco arriba. */
+.cardbtn {
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  width: 100%;
+  min-height: 112px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 16px 20px;
+  border: 0;
+  border-radius: var(--radius-large);
+  background: var(--card-main);
+  color: var(--white);
+  text-align: left;
+  box-shadow: 0 7px 0 var(--card-dark);
+}
+
+.cardbtn:active {
+  transform: translateY(4px);
+  box-shadow: 0 3px 0 var(--card-dark);
+}
+
+.cardbtn--theme {
+  --card-main: var(--theme-strong);
+  --card-dark: var(--theme-strong-dark);
+}
+
+.cardbtn--adult {
+  --card-main: var(--adult);
+  --card-dark: var(--adult-dark);
+}
+
+.cardbtn__icon {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--card-main);
+}
+
+.cardbtn__text {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-shadow: 0 2px 0 var(--card-dark);
+}
+
+.cardbtn__name {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.cardbtn__deco i {
+  position: absolute;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 22%);
+}
+
+.cardbtn__deco i:nth-child(1) {
+  width: 90px;
+  height: 90px;
+  left: -30px;
+  top: -34px;
+}
+
+.cardbtn__deco i:nth-child(2) {
+  width: 34px;
+  height: 34px;
+  left: 52px;
+  top: 8px;
+}
+
+.cardbtn__deco i:nth-child(3) {
+  width: 18px;
+  height: 18px;
+  left: 22px;
+  top: 62px;
+}
+
+.link {
+  align-self: center;
+  min-height: var(--touch-min);
+  padding: 8px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--blue-dark);
+  font: 500 1rem var(--font-adult);
+  text-decoration: underline;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radius-large);
+  background: var(--white);
+  box-shadow: var(--card-shadow);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar__title {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+/* 4. Inicio ---------------------------------------------------------------- */
+.logo {
+  margin: 0;
+  font-weight: 700;
+  font-size: 2.2rem;
+  color: var(--logo);
+  text-shadow: 0 3px 0 var(--white);
+}
+
+.greeting {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin: 4px 0 6px;
+}
+
+.greeting__mascot {
+  flex: none;
+  width: 110px;
+  height: 110px;
+}
+
+.bubble {
+  position: relative;
+  margin: 0;
+  padding: 14px 20px;
+  border-radius: 24px;
+  background: var(--white);
+  font-weight: 600;
+  font-size: 1.4rem;
+  box-shadow: 0 5px 16px rgb(0 0 0 / 8%);
+}
+
+/* Piquito hacia la mascota, hecho con bordes transparentes. */
+.bubble::before {
+  content: '';
+  position: absolute;
+  left: -14px;
+  top: 50%;
+  margin-top: -10px;
+  border: 10px solid transparent;
+  border-right: 14px solid var(--white);
+  border-left: 0;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.group__label {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.group__hint {
+  margin: 0;
+  color: var(--muted);
+  font: 400 1rem var(--font-adult);
+}
+
+.picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+/* Niveles y cantidad de adultos: el elegido se pinta de naranja de marca (texto oscuro: 8,5:1). */
+.choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 92px;
+  padding: 10px 6px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--white);
+  color: var(--ink);
+  font: 600 1.1rem var(--font-kid);
+  box-shadow: 0 var(--press-depth) 0 var(--edge-soft);
+}
+
+.choice--small {
+  min-height: 64px;
+  font-size: 1.6rem;
+}
+
+.choice:active {
+  transform: translateY(var(--press-travel));
+  box-shadow: 0 calc(var(--press-depth) - var(--press-travel)) 0 var(--edge-soft);
+}
+
+.choice[aria-pressed='true'] {
+  background: var(--orange);
+  color: var(--on-theme);
+  box-shadow: 0 var(--press-depth) 0 var(--orange-dark);
+}
+
+.choice[aria-pressed='true']:active {
+  box-shadow: 0 calc(var(--press-depth) - var(--press-travel)) 0 var(--orange-dark);
+}
+
+.choice__topic {
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.names {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.name-row__dot {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--adult);
+}
+
+.name-row__input {
+  flex: 1;
+  min-height: var(--touch-min);
+  padding: 8px 14px;
+  border: 2px solid var(--edge);
+  border-radius: var(--radius-small);
+  background: var(--white);
+  color: var(--ink);
+  font: 500 1.1rem var(--font-kid);
+}
+
+.toggles {
+  display: flex;
+  gap: 10px;
+}
+
+.toggle {
+  position: relative;
+}
+
+.toggle input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  cursor: pointer;
+}
+
+.toggle__pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-min);
+  padding: 8px 18px;
+  border-radius: var(--radius-small);
+  background: var(--white);
+  box-shadow: 0 4px 0 var(--edge-soft);
+  font-weight: 500;
+}
+
+.toggle input:checked + .toggle__pill {
+  background: var(--theme-light);
+  box-shadow: 0 4px 0 var(--wood-edge);
+}
+
+.toggle input:focus-visible + .toggle__pill {
+  outline: 4px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* 5. Ronda ----------------------------------------------------------------- */
+/* Tema del nivel: coral, azul o rosa, como los modos de Memo Colores. */
+.screen--round[data-level='1'] {
+  --theme-strong: var(--level-1-strong);
+  --theme-strong-dark: var(--level-1-dark);
+}
+
+.screen--round[data-level='2'] {
+  --theme-strong: var(--blue);
+  --theme-strong-dark: var(--blue-dark);
+}
+
+.screen--round[data-level='3'] {
+  --theme-strong: var(--level-3-strong);
+  --theme-strong-dark: var(--level-3-dark);
+}
+
+.topbar__pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--white);
+  box-shadow: 0 4px 0 var(--edge-soft);
+  font-weight: 600;
+}
+
+.topbar__stars {
+  font-size: 1.5rem;
+  color: var(--ink);
+}
+
+.topbar__stars .icon {
+  color: var(--gold-dark);
+  fill: var(--gold);
+}
+
+.topbar__clock {
+  margin-inline-start: auto;
+  color: var(--muted); /* discreto: el tiempo no debe presionar */
+  font-size: 1rem;
+}
+
+.round {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stage {
+  flex: 1 1 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.stage__icon {
+  display: grid;
+  place-items: center;
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: 0 var(--press-depth) 0 var(--edge);
+  color: var(--theme-strong);
+}
+
+.stage__title {
+  margin: 0;
+  font-size: 2rem;
+  color: var(--ink);
+}
+
+.stage__text,
+.stage__big {
+  margin: 0;
+  max-width: 22ch;
+  font-size: 1.9rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.stage__text {
+  font-weight: 500;
+  font-size: 1.6rem;
+}
+
+.stage__big {
+  padding: 16px 22px;
+  border-radius: var(--radius-large);
+  background: var(--white);
+  box-shadow: var(--card-shadow);
+}
+
+.action {
+  flex: 1 1 50%; /* el botón principal ocupa la mitad inferior */
+  min-height: 40dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.action__stack {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.action__wait {
+  margin: auto;
+  padding: 14px 26px;
+  border-radius: var(--radius-large);
+  background: var(--white);
+  box-shadow: var(--card-shadow);
+  color: var(--muted);
+  font-size: 2.2rem;
+  font-weight: 600;
+}
+
+.options {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 120px;
+  padding: 12px;
+  border: 0;
+  border-radius: var(--radius-large);
+  background: var(--white);
+  color: var(--theme-strong);
+  font: 600 1.4rem var(--font-kid);
+  box-shadow: 0 7px 0 var(--edge);
+}
+
+.option__word {
+  color: var(--ink);
+}
+
+button.option:active {
+  transform: translateY(4px);
+  box-shadow: 0 3px 0 var(--edge);
+}
+
+.option.is-model {
+  background: var(--correct-bg);
+  box-shadow: 0 7px 0 var(--correct-shadow);
+}
+
+/* 6. Final ----------------------------------------------------------------- */
+.screen--end {
+  align-items: stretch;
+  text-align: center;
+}
+
+.end__mascot {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+}
+
+.end__total {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.end__total .icon {
+  color: var(--gold-dark);
+  fill: var(--gold);
+}
+
+.end__number {
+  color: var(--ink);
+  font-size: 4.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.end__caption {
+  margin: 0 0 8px;
+  font-size: 1.4rem;
+}
+
+.end__subtitle {
+  margin: 12px 0 8px;
+  font-size: 1.1rem;
+  color: var(--muted);
+}
+
+.end__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.end__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-radius: var(--radius);
+  background: var(--white);
+  box-shadow: 0 4px 0 var(--edge-soft);
+  border-inline-start: 10px solid var(--adult);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.end__item span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.screen--end .button {
+  margin-top: auto;
+}
+
+/* 7. Progreso -------------------------------------------------------------- */
+.screen--progress .topbar .button {
+  margin-inline-start: auto;
+}
+
+.progress__empty {
+  margin: 24px 0;
+  padding: 18px;
+  border-radius: var(--radius-large);
+  background: var(--white);
+  text-align: center;
+  color: var(--muted);
+  font: 400 1.1rem var(--font-adult);
+}
+
+.chart {
+  padding: 14px;
+  border-radius: var(--radius-large);
+  background: var(--white);
+  box-shadow: var(--card-shadow);
+}
+
+.chart__title {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.chart__cols {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 140px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chart__col {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+}
+
+.chart__bar {
+  width: 100%;
+  max-width: 44px; /* con pocas sesiones la barra no se estira por toda la tarjeta */
+  height: var(--h, 0%);
+  max-height: calc(100% - 1.4rem); /* deja sitio al número de arriba */
+  border-radius: 6px 6px 0 0;
+  background: var(--blue);
+}
+
+.sessions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.session {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: var(--white);
+  box-shadow: 0 4px 0 var(--edge-soft);
+  font: 400 1rem var(--font-adult);
+}
+
+.session span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.session__date {
+  font-weight: 600;
+}
+
+.session .icon {
+  color: var(--gold-dark);
+  fill: var(--gold);
+}
+
+/* 8. Diálogo --------------------------------------------------------------- */
+.dialog {
+  width: min(92vw, 420px);
+  padding: 22px;
+  border: 0;
+  border-radius: var(--radius-large);
+  background: var(--white);
+  color: var(--ink);
+  font: 400 1rem var(--font-adult);
+  box-shadow: var(--card-shadow);
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 35%);
+}
+
+.dialog__title {
+  margin: 0 0 8px;
+  font: 600 1.4rem var(--font-kid);
+}
+
+.dialog__buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.dialog__buttons .button {
+  flex: 1;
+}
+
+/* 9. Responsive ------------------------------------------------------------ */
+@media (min-width: 700px) {
+  .app {
+    max-width: 640px;
+    padding-block: 32px;
+  }
+
+  .action {
+    min-height: 320px;
+  }
+
+  .greeting__mascot {
+    width: 130px;
+    height: 130px;
+  }
+}
+
+@media (max-width: 380px) {
+  .logo {
+    font-size: 1.9rem;
+  }
+
+  .choice__topic {
+    font-size: 0.75rem;
+  }
+}
+
+/* 10. Animaciones: la mascota del inicio se mece 3 veces y descansa. En la ronda no hay ninguna. */
+.is-floating {
+  animation: float 3s ease-in-out 3;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-floating {
+    animation: none;
+  }
+}
